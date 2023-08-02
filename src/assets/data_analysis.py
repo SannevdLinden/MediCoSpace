@@ -82,7 +82,7 @@ def load_data(name):
     line = json.loads(json_str)
     if line['gold_label'] == 'entailment':
       score = 1.0
-    elif line['gold_label'] == 'neurtal':
+    elif line['gold_label'] == 'neutral':
       score = 0.5
     elif line['gold_label'] == 'contradiction':
       score = 0.0
