@@ -82,7 +82,7 @@ def load_data(name):
     line = json.loads(json_str)
     if line['gold_label'] == 'entailment':
       score = 1.0
-    elif line['gold_label'] == 'neutral':
+    elif line['gold_label'] == 'neurtal':
       score = 0.5
     elif line['gold_label'] == 'contradiction':
       score = 0.0
@@ -109,14 +109,18 @@ def umls_vectors():
     elif line[11] == 'CCS_10':
       cat.append('procedure')
   
+  for i in range(len(name)):
+    name[i] = str(name[i]).lower()  
+    name[i] = re.sub('[^a-zA-Z0-9 ]', '', name[i])  
+  
   concepts = pd.DataFrame(list(zip(cui,aui,name,cat)), columns=['cui', 'aui', 'name', 'cat']) 
-  concepts['name'] = concepts['name'].apply(text_cleaning)
   path = r'path to clinical kb model'
   model = SentenceTransformer(path)
   concepts['vector'] = concepts['name'].apply(lambda x: model.encode(x))
   #print(concepts)
   return concepts
-  
+
+#based on https://github.com/Georgetown-IR-Lab/QuickUMLS/blob/c0b5db059fbef8d70681626a34456ab3d906e5e7/quickumls/install.py
 def generator_concepts():
   path_to_mrconso =  r'path to concepts umls'
   file = open(path_to_mrconso, "r")
@@ -129,14 +133,6 @@ def generator_concepts():
       yield line
     else: 
       continue
-
-def text_cleaning(string_concept):
-  string_concept = re.sub('([A-Z]{1,2})([0-9]{1,2})', '', string_concept)
-  string_concept = string_concept.lower()  
-  string_concept = re.sub('[^a-zA-Z0-9 ]', '', string_concept)
-  string_concept = string_concept.strip()
-    
-  return string_concept
 
 def note_concepts(vec_umls, patient):
   print('start processing patient ' + str(patient))
@@ -243,7 +239,7 @@ def parent_concept(list_concepts):
 
   return result_parents
 
-
+#based on https://github.com/Georgetown-IR-Lab/QuickUMLS/blob/c0b5db059fbef8d70681626a34456ab3d906e5e7/quickumls/install.py
 def generator_concepts_hier(relevant_concepts):
   path_to_mrhier =  r'path to hier file umls'
   file = open(path_to_mrhier, "r")
